@@ -194,7 +194,9 @@ app.LinkedMetadataSelectionPanel = Ext.extend(Ext.FormPanel, {
         var tbarItems = [this.getSearchInput(),
                          '->',
                          translate('maxResults'),
-                         this.getLimitInput()];
+                         this.getLimitInput(),
+                         translate('all'),
+                         this.getShowAll()];
         this.addHiddenFormInput(tbarItems);
         
         var grid = new Ext.grid.GridPanel({
@@ -303,6 +305,7 @@ app.LinkedMetadataSelectionPanel = Ext.extend(Ext.FormPanel, {
                 	xtype: 'textfield',
                 	fieldLabel: this.hiddenParameters[i].name,
                 	name: this.hiddenParameters[i].name,
+                    id: this.hiddenParameters[i].name,
                 	value: this.hiddenParameters[i].value,
                 	hidden: true
                 });
@@ -335,6 +338,37 @@ app.LinkedMetadataSelectionPanel = Ext.extend(Ext.FormPanel, {
         value: 20,
         width: 40
       };
+    },
+
+    /**
+     * Add a checkbox to allow select all types of dataset (in the hidden parameter)
+     * @see addHiddenFormInput function.
+     **/
+    getShowAll: function(){
+      return {
+        xtype: 'checkbox',
+        name: 'nbAllDatasets',
+        id: 'nbAllDatasets',
+        value: false,
+        listeners:{
+            check: function(cb, value){
+                // We control the form param with the id 'this.hiddenParameters[0].name'. 
+                if(!!this.hiddenParameters
+                    && this.hiddenParameters[0]
+                    && this.hiddenParameters[0].value
+                    && this.hiddenParameters[0].name){
+                    // The default value is this.hiddenParameters[0].value
+                    var datasetFilter = this.hiddenParameters[0].value;
+                    if(value){
+                        // if the checkbos is marked, we clean the dataset selection
+                        datasetFilter = "";
+                    }
+                    Ext.getCmp(this.hiddenParameters[0].name).setValue(datasetFilter);
+                }
+            },
+            scope: this
+        }
+      };  
     },
     
     getScopedNamePanel: function(grid) {
